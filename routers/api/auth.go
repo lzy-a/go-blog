@@ -47,4 +47,5 @@ func GetAuth(c *gin.Context) {
 		"msg":  e.GetMsg(code),
 		"date": data,
 	})
+
 }
