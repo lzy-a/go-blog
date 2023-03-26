@@ -1,12 +1,15 @@
 package routers
 
 import (
+	"gin/docs"
 	"gin/middleware/jwt"
 	"gin/pkg/setting"
 	"gin/routers/api"
 	v1 "gin/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func InitRoute() *gin.Engine {
@@ -17,8 +20,8 @@ func InitRoute() *gin.Engine {
 		})
 	})
 	gin.SetMode(setting.RunMode)
-
 	router.GET("/auth", api.GetAuth)
+	docs.SwaggerInfo.BasePath = "/api/v1"
 	apiv1 := router.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
 	{
@@ -42,6 +45,6 @@ func InitRoute() *gin.Engine {
 		//删除文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 	}
-
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }
