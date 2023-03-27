@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"gin/models"
+	"gin/pkg/logging"
 	"gin/pkg/setting"
 	"gin/routers"
 	"log"
@@ -13,6 +15,9 @@ import (
 )
 
 func main() {
+	setting.Setup()
+	models.Setup()
+	logging.Setup()
 	router := routers.InitRoute()
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", setting.HTTPPort),

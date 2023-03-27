@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/pkg/setting"
 	"log"
+	"time"
 
 	// "github.com/go-sql-driver/mysql"
 	// _ "github.com/go-sql-driver/mysql"
@@ -19,24 +20,21 @@ type Model struct {
 	ID         int `gorm:"primary_key" json:"id"`
 	CreatedOn  int `json:"created_on"`
 	ModifiedOn int `json:"modified_on"`
+	DeletedOn  int `json:"deleted_on"`
 }
 
-func init() {
+func Setup() {
 	var (
 		err                                       error
 		dbName, user, password, host, tablePrefix string
 	)
 
-	sec, err := setting.Cfg.GetSection("database")
-	if err != nil {
-		log.Fatal(2, "Fail to get section 'database': %v", err)
-	}
 	// dbType = sec.Key("TYPE").String()
-	dbName = sec.Key("NAME").String()
-	user = sec.Key("USER").String()
-	password = sec.Key("PASSWORD").String()
-	host = sec.Key("HOST").String()
-	tablePrefix = sec.Key("TABLE_PREFIX").String()
+	dbName = setting.DatabaseSetting.Name
+	user = setting.DatabaseSetting.User
+	password = setting.DatabaseSetting.Password
+	host = setting.DatabaseSetting.Host
+	tablePrefix = setting.DatabaseSetting.TablePrefix
 	//使用gorm.Open连接数据库
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, password, host, dbName)
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -55,4 +53,50 @@ func init() {
 	}
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
+	updateTimeStampForCreateCallback(db)
+	updateTimeStampForUpdateCallback(db)
+	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
+}
+
+func updateTimeStampForCreateCallback(db *gorm.DB) {
+	db.Callback().Create().Before("gorm:create").Register("updateTimeStampForCreateCallback", func(db *gorm.DB) {
+		if db.Statement.Schema != nil {
+			newTime := time.Now().Unix()
+			field := db.Statement.Schema.LookUpField("CreatedOn")
+			if field != nil {
+				field.Set(db.Statement.Context, db.Statement.ReflectValue, newTime)
+			}
+			field = db.Statement.Schema.LookUpField("ModifiedOn")
+			if field != nil {
+				field.Set(db.Statement.Context, db.Statement.ReflectValue, newTime)
+			}
+		}
+	})
+}
+
+func updateTimeStampForUpdateCallback(db *gorm.DB) {
+	db.Callback().Update().Before("gorm:update").Register("updateTimeStampForUpdateCallback", func(db *gorm.DB) {
+		if db.Statement.Schema != nil {
+			newTime := time.Now().Unix()
+			field := db.Statement.Schema.LookUpField("ModifiedOn")
+			if field != nil {
+				field.Set(db.Statement.Context, db.Statement.ReflectValue, newTime)
+			}
+		}
+	})
+}
+
+func deleteCallback(db *gorm.DB) {
+	db.Callback().Delete().Before("gorm:delete").Register("update_deleted_at", func(db *gorm.DB) {
+		if db.Statement.Schema != nil {
+			field := db.Statement.Schema.LookUpField("DeletedOn")
+			if field != nil {
+				now := time.Now().Unix()
+				db.Statement.SetColumn("DeletedOn", now)
+				db.Where(db.Statement.Quote(field.DBName) + " IS NULL")
+			} else {
+				db = db.Where(db.Statement.Quote(field.DBName) + " IS NULL")
+			}
+		}
+	})
 }
