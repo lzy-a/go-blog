@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"gin/pkg/logging"
 	"gin/pkg/setting"
 	"log"
 	"time"
@@ -37,6 +38,7 @@ func Setup() {
 	tablePrefix = setting.DatabaseSetting.TablePrefix
 	//使用gorm.Open连接数据库
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, password, host, dbName)
+	fmt.Println(dsn)
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   tablePrefix, // 表名前缀
@@ -45,17 +47,19 @@ func Setup() {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
+		logging.Fatal(err)
 		log.Fatal(err)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
+		logging.Fatal(err)
 		log.Fatal(err)
 	}
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	updateTimeStampForCreateCallback(db)
 	updateTimeStampForUpdateCallback(db)
-	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
+	// db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 }
 
 func updateTimeStampForCreateCallback(db *gorm.DB) {

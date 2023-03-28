@@ -9,15 +9,6 @@ import (
 
 var (
 	Cfg *ini.File
-
-	RunMode string
-
-	HTTPPort     int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-
-	PageSize  int
-	JwtSecret string
 )
 
 type App struct {
@@ -69,7 +60,7 @@ func Setup() {
 		log.Fatalf("Cfg.MapTo AppSetting err: %v", err)
 	}
 	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
-
+	// fmt.Printf("%#v\n", AppSetting)
 	err = Cfg.Section("server").MapTo(ServerSetting)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo ServerSetting err: %v", err)

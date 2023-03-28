@@ -19,8 +19,10 @@ func InitRoute() *gin.Engine {
 			"message": "test",
 		})
 	})
-	gin.SetMode(setting.RunMode)
+	gin.SetMode(setting.ServerSetting.RunMode)
+
 	router.GET("/auth", api.GetAuth)
+	router.POST("/upload", api.UploadImage)
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	apiv1 := router.Group("/api/v1")
 	apiv1.Use(jwt.JWT())

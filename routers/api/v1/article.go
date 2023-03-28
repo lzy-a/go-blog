@@ -6,6 +6,7 @@ import (
 	"gin/pkg/logging"
 	"gin/pkg/setting"
 	"gin/pkg/util"
+	"net/http"
 	"strconv"
 
 	"github.com/astaxie/beego/validation"
@@ -38,7 +39,7 @@ func GetArticle(c *gin.Context) {
 			logging.Info(err.Key, err.Message)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": data,
@@ -73,7 +74,7 @@ func GetArticles(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		code = e.SUCCESS
-		data["lists"] = models.GetArticles(util.GetPage(c), setting.PageSize, maps)
+		data["lists"] = models.GetArticles(util.GetPage(c), setting.AppSetting.PageSize, maps)
 		data["total"] = models.GetArticlesTotal(maps)
 	} else {
 		for _, err := range valid.Errors {
@@ -81,7 +82,7 @@ func GetArticles(c *gin.Context) {
 			logging.Info(err.Key, err.Message)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": data,
@@ -137,7 +138,7 @@ func AddArticle(c *gin.Context) {
 			logging.Info(err.Key, err.Message)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),
@@ -200,7 +201,7 @@ func EditArticle(c *gin.Context) {
 			logging.Info(err.Key, err.Message)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),
@@ -233,7 +234,7 @@ func DeleteArticle(c *gin.Context) {
 			logging.Info(err.Key, err.Message)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),

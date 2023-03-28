@@ -12,5 +12,5 @@ func GetPage(ctx *gin.Context) int {
 	if page <= 0 {
 		return 0
 	}
-	return (page - 1) * setting.PageSize
+	return (page - 1) * setting.AppSetting.PageSize
 }

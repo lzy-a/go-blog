@@ -8,20 +8,12 @@ import (
 	"time"
 )
 
-var (
-	LogSavePath     = setting.AppSetting.LogSavePath
-	LogSaveName     = setting.AppSetting.LogSaveName
-	LogFileExt      = setting.AppSetting.LogFileExt
-	TimeFormat      = setting.AppSetting.TimeFormat
-	RuntimeRootPath = setting.AppSetting.RuntimeRootPath
-)
-
 func getLogFilePath() string {
-	return RuntimeRootPath + LogSavePath
+	return setting.AppSetting.RuntimeRootPath + setting.AppSetting.LogSavePath
 }
 
 func getLogFileName() string {
-	return LogSaveName + time.Now().Format(TimeFormat) + "." + LogFileExt
+	return setting.AppSetting.LogSaveName + time.Now().Format(setting.AppSetting.TimeFormat) + "." + setting.AppSetting.LogFileExt
 }
 
 func openLogFile(fileName, filePath string) (*os.File, error) {

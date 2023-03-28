@@ -5,6 +5,7 @@ import (
 	"gin/pkg/e"
 	"gin/pkg/setting"
 	"gin/pkg/util"
+	"net/http"
 	"strconv"
 
 	"github.com/astaxie/beego/validation"
@@ -32,9 +33,9 @@ func GetTags(c *gin.Context) {
 		maps["state"] = state
 	}
 	code := e.SUCCESS
-	data["lists"] = models.GetTags(util.GetPage(c), setting.PageSize, maps)
+	data["lists"] = models.GetTags(util.GetPage(c), setting.AppSetting.PageSize, maps)
 	data["total"] = models.GetTagTotal(maps)
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": data,
@@ -70,7 +71,7 @@ func AddTags(c *gin.Context) {
 		}
 	}
 
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),
@@ -116,7 +117,7 @@ func EditTags(c *gin.Context) {
 			code = e.ERROR_NOT_EXIST_TAG
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),
@@ -144,7 +145,7 @@ func DeleteTags(c *gin.Context) {
 		}
 	}
 
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),

@@ -31,6 +31,7 @@ const (
 func Setup() {
 	filepath := getLogFilePath()
 	filename := getLogFileName()
+	fmt.Println(filepath, filename)
 	F, err := openLogFile(filename, filepath)
 	if err != nil {
 		log.Fatalln(err)
