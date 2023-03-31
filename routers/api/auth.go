@@ -5,6 +5,7 @@ import (
 	"gin/pkg/e"
 	"gin/pkg/logging"
 	"gin/pkg/util"
+	"net/http"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,7 @@ func GetAuth(c *gin.Context) {
 			logging.Info(err.Key, err.Value)
 		}
 	}
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"date": data,

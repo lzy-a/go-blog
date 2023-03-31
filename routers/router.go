@@ -4,8 +4,10 @@ import (
 	"gin/docs"
 	"gin/middleware/jwt"
 	"gin/pkg/setting"
+	"gin/pkg/upload"
 	"gin/routers/api"
 	v1 "gin/routers/api/v1"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -14,6 +16,8 @@ import (
 
 func InitRoute() *gin.Engine {
 	router := gin.Default()
+	router.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+
 	router.GET("/test", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"message": "test",
