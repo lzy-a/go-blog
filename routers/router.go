@@ -39,6 +39,8 @@ func InitRoute() *gin.Engine {
 		apiv1.PUT("/tags/:id", v1.EditTags)
 		//删除标签
 		apiv1.DELETE("/tags/:id", v1.DeleteTags)
+		//导出标签
+		router.POST("/tags/export", v1.ExportTag)
 
 		//获取文章列表
 		apiv1.GET("/articles", v1.GetArticles)
@@ -50,6 +52,7 @@ func InitRoute() *gin.Engine {
 		apiv1.PUT("/articles/:id", v1.EditArticle)
 		//删除文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
+
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router

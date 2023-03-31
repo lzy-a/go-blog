@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gin/models"
+	"gin/pkg/gredis"
 	"gin/pkg/logging"
 	"gin/pkg/setting"
 	"gin/routers"
@@ -18,6 +19,7 @@ func main() {
 	setting.Setup()
 	models.Setup()
 	logging.Setup()
+	gredis.Setup()
 	router := routers.InitRoute()
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),

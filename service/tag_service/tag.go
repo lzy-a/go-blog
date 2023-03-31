@@ -3,9 +3,14 @@ package tagservice
 import (
 	"encoding/json"
 	"gin/models"
+	"gin/pkg/export"
 	"gin/pkg/gredis"
 	"gin/pkg/logging"
 	cacheservice "gin/service/cache_service"
+	"strconv"
+	"time"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
 )
 
 type Tag struct {
@@ -83,6 +88,38 @@ func (t *Tag) Edit() error {
 	}
 	gredis.Set(key, tag, 3600)
 	return nil
+}
+
+func (t *Tag) Export() (string, error) {
+	tags, err := t.GetAll()
+	// fmt.Println(tags)
+	if err != nil {
+		return "", err
+	}
+	file := excelize.NewFile()
+	index := file.NewSheet("标签信息")
+
+	titles := []string{"ID", "名称", "创建人", "创建时间", "修改人", "修改时间"}
+	for col, v := range titles {
+		file.SetCellValue("标签信息", excelize.ToAlphaString(col)+"1", v)
+	}
+	for row, v := range tags {
+		values := []interface{}{
+			v.ID, v.Name, v.CreatedBy, v.CreatedOn, v.ModifiedBy, v.ModifiedOn,
+		}
+		for col, value := range values {
+			file.SetCellValue("Sheet1", excelize.ToAlphaString(col)+strconv.Itoa(row+2), value)
+		}
+	}
+
+	time := strconv.Itoa(int(time.Now().Unix()))
+	filename := "tags-" + time + ".xlsx"
+	fullPath := export.GetExcelFullPath() + filename
+	if err := file.SaveAs(fullPath); err != nil {
+		return "", err
+	}
+	file.SetActiveSheet(index)
+	return filename, nil
 }
 
 func (t *Tag) getMaps() map[string]interface{} {

@@ -16,7 +16,7 @@ import (
 // http://127.0.0.1:8000/upload/images/2019/04/04/20190404100000.jpg
 func GetImageFullUrl(name string) string {
 
-	return setting.AppSetting.ImagePrefixUrl + "/" + GetImagePath() + name
+	return setting.AppSetting.PrefixUrl + "/" + GetImagePath() + name
 }
 
 // upload/images/

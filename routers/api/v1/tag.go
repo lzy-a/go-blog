@@ -3,6 +3,7 @@ package v1
 import (
 	"gin/pkg/app"
 	"gin/pkg/e"
+	"gin/pkg/export"
 	"gin/pkg/setting"
 	"gin/pkg/util"
 	tagservice "gin/service/tag_service"
@@ -184,5 +185,32 @@ func DeleteTags(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, data)
+
+}
+
+func ExportTag(c *gin.Context) {
+	appG := app.Gin{c}
+	name := c.PostForm("name")
+	// fmt.Println(name)
+	var state = -1
+	if arg := c.PostForm("state"); arg != "" {
+		state, _ = strconv.Atoi(arg)
+	}
+	tagservice := tagservice.Tag{
+		Name:     name,
+		State:    state,
+		PageNum:  util.GetPage(c),
+		PageSize: setting.AppSetting.PageSize,
+	}
+	filename, err := tagservice.Export()
+	// fmt.Println(filename)
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_EXPORT_TAG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"export_url":      export.GetExcelFullUrl(filename),
+		"export_save_url": export.GetExcelFullPath() + filename,
+	})
 
 }
